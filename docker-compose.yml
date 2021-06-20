@@ -1,0 +1,39 @@
+﻿version: '3.1'
+services:
+#BANCO DE DADOS
+  sqlserver_imagem:
+    container_name: sqlserver
+    image: mcr.microsoft.com/mssql/server
+    ports:       
+      - 1433:1433
+    environment:
+      - "SA_PASSWORD=yourStrong(!)Password"
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_PID=Developer"
+    restart: on-failure
+    networks:
+      - api
+    volumes: 
+      - sqldata:/var/opt/sqlserver
+#API
+  api_imagem:    
+    container_name: api
+    depends_on: 
+      - sqlserver_imagem
+    restart: on-failure
+    ports: 
+      - 5000:5000
+      - 5001:5001
+    build: 
+      context: .   
+      dockerfile: Dockerfile  
+    environment: 
+      - "AMBIENTE_DOCKER=SIM" 
+    networks:
+      - api
+
+volumes:
+  sqldata:
+
+networks:
+  api:
