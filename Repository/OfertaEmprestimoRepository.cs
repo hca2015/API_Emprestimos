@@ -23,8 +23,6 @@ namespace API_Emprestimos.Repository
                 .Include(p => p.USUARIO)
                 .Include(p => p.PEDIDO)
 
-                .AsNoTracking()
-
                 .OrderByDescending(x => x.CRIADO);
 
             return retorno.ToList();

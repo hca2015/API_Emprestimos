@@ -51,8 +51,6 @@ namespace API_Emprestimos.Repository
                     .ThenInclude(p => p.Ofertas)
                     .ThenInclude(p => p.PEDIDO)
                     
-                .AsNoTracking()
-                
                 .OrderByDescending(x => x.ACEITO);
 
             return retorno.ToList();

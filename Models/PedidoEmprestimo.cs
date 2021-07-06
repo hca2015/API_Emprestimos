@@ -17,5 +17,8 @@ namespace API_Emprestimos.Models
         public DateTime CRIADO { get; set; }
 
         public List<OfertaEmprestimo> Ofertas { get; set; } = new List<OfertaEmprestimo>();
+
+        [NotMapped]
+        public string CRIADOSTR => CRIADO.ToString("d");
     }
 }

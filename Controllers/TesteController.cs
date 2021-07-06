@@ -114,7 +114,7 @@ namespace API_Emprestimos.Controllers
                 PedidoEmprestimo pedido = new PedidoEmprestimo()
                 {
                     USUARIO = item,
-                    VALOR = new Random().Next(12335, 78411)
+                    VALOR = new Random().Next(12335, 78411) + Math.Round(new Random().NextDouble(),2)
                 };
 
                 if (pedidoEmprestimoRepository.Insert(pedido))
@@ -131,7 +131,7 @@ namespace API_Emprestimos.Controllers
                     {
                         PEDIDO = ped,
                         USUARIO = usu,
-                        TAXA = new Random().NextDouble(),
+                        TAXA = Math.Round(new Random().NextDouble(), 5),
                         TEMPO = new Random().Next(30, 90),
                         TIPOTEMPO = (int)KDTipoTempo.Dias
                     };
