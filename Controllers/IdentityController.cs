@@ -1,13 +1,16 @@
 ﻿using API_Emprestimos.Models;
+using API_Emprestimos.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace API_Emprestimos.Controllers
 {
@@ -15,38 +18,52 @@ namespace API_Emprestimos.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UsuarioRepository usuarioRepository;
 
-        public IdentityController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration, IServiceProvider serviceProvider)
+        public IdentityController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration, IServiceProvider serviceProvider, UsuarioRepository usuarioRepository)
             : base(configuration, serviceProvider)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            this.usuarioRepository = usuarioRepository;
         }
                 
         [HttpPost("Criar")]
-        public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
+        public async Task<ActionResult<UserToken>> CreateUser([FromBody] Usuario model)
         {
             IdentityUser user = new IdentityUser { UserName = model.EMAIL, Email = model.EMAIL };
-            IdentityResult result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
+            
+            using (TransactionScope scope = new(TransactionScopeOption.RequiresNew))
             {
-                return BuildToken(model);
-            }
-            else
-            {
-                return BadRequest("Usuário ou senha inválidos");
-            }
+                IdentityResult result = await _userManager.CreateAsync(user, model.PASSWORD);
+                if (result.Succeeded)
+                {
+                    if (usuarioRepository.Find(model.EMAIL) == null && !usuarioRepository.Insert(model))
+                    {
+                        scope.Dispose();
+                        throw new Exception("não foi possivel criar o usuario");
+                    }
+
+                    scope.Complete();
+                    return BuildToken(model);
+                }
+                else
+                {
+                    scope.Dispose();
+                    return BadRequest(string.Join("<br>", result.Errors.Select(e => e.Description)));
+                }
+            }            
         }
 
         [HttpPost("Login")]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserInfo userInfo)
         {
-            Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(userInfo.EMAIL, userInfo.Password,
+            Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(userInfo.EMAIL, userInfo.PASSWORD,
                  isPersistent: false, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
-                return BuildToken(userInfo);
+                return BuildToken(new Usuario() { EMAIL = userInfo.EMAIL });
             }
             else
             {
@@ -55,7 +72,7 @@ namespace API_Emprestimos.Controllers
             }
         }
 
-        private UserToken BuildToken(UserInfo userInfo)
+        private UserToken BuildToken(Usuario userInfo)
         {
             Claim[] claims = new[]
             {

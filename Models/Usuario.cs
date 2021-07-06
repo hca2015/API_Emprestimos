@@ -35,5 +35,8 @@ namespace API_Emprestimos.Models
 
         [MaxLength(2, ErrorMessage = "Não pode exceder 2 caracteres")]
         public string ESTADO { get; set; }
+
+        [NotMapped]
+        public string PASSWORD { get; set; }
     }
 }
