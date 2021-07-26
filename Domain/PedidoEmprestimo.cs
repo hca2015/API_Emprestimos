@@ -9,7 +9,7 @@ namespace API_Emprestimos.Models
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PEDIDOID { get; set; }
-        [Required]
+        //[Required]
         public virtual Usuario USUARIO { get; set; }
         [Required]
         public double VALOR { get; set; }
@@ -18,7 +18,10 @@ namespace API_Emprestimos.Models
 
         public List<OfertaEmprestimo> Ofertas { get; set; } = new List<OfertaEmprestimo>();
 
+        public DateTime? ACEITO { get; set; }
         [NotMapped]
         public string CRIADOSTR => CRIADO.ToString("d");
+        [NotMapped]
+        public string ACEITOSTR => ACEITO?.ToString("d");
     }
 }

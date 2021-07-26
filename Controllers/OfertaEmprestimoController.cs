@@ -7,8 +7,8 @@ namespace API_Emprestimos.Controllers
 {
     public class OfertaEmprestimoController : EntityController<OfertaEmprestimo, OfertaEmprestimoRepository>
     {
-        public OfertaEmprestimoController(IConfiguration configuration, IServiceProvider serviceProvider, OfertaEmprestimoRepository repository)
-            : base(configuration, serviceProvider, repository)
+        public OfertaEmprestimoController(IConfiguration configuration, IServiceProvider serviceProvider, OfertaEmprestimoRepository repository, ContextoExecucao contexto)
+            : base(configuration, serviceProvider, repository, contexto)
         {
         }
     }

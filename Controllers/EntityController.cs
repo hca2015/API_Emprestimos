@@ -12,8 +12,8 @@ namespace API_Emprestimos.Controllers
     {
         private protected Repository repository;
 
-        protected EntityController(IConfiguration configuration, IServiceProvider serviceProvider, Repository repository)
-            : base(configuration, serviceProvider)
+        protected EntityController(IConfiguration configuration, IServiceProvider serviceProvider, Repository repository, ContextoExecucao contexto)
+            : base(configuration, serviceProvider, contexto)
         {
             this.repository = repository;
         }
@@ -34,10 +34,10 @@ namespace API_Emprestimos.Controllers
             return Ok(model);
         }
 
-        [HttpPost("Deletar")]
-        public IActionResult Deletar(Entity model)
+        [HttpDelete("Deletar")]
+        public IActionResult Deletar(int id)
         {
-            repository.Delete(model);
+            repository.Delete(id);
 
             return Ok();
         }

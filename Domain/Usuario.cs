@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API_Emprestimos.Models
@@ -7,6 +8,7 @@ namespace API_Emprestimos.Models
     {
 
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [JsonIgnore]
         public int USUARIOID { get; set; }
 
         [Required]

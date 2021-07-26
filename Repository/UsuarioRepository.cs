@@ -5,7 +5,7 @@ namespace API_Emprestimos.Repository
 {
     public class UsuarioRepository : AbstractRepository<Usuario>
     {
-        public UsuarioRepository(BaseDbContext context) : base(context)
+        public UsuarioRepository(BaseDbContext context, ContextoExecucao contexto) : base(context, contexto)
         {
         }
 

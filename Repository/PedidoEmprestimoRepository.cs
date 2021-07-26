@@ -8,18 +8,25 @@ namespace API_Emprestimos.Repository
 {
     public class PedidoEmprestimoRepository : AbstractRepository<PedidoEmprestimo>
     {
-        public PedidoEmprestimoRepository(BaseDbContext context) : base(context)
+        private readonly UsuarioRepository usuarioRepository;
+
+        public PedidoEmprestimoRepository(BaseDbContext context
+            , ContextoExecucao contexto
+            , UsuarioRepository usuarioRepository) : base(context, contexto)
         {
+            this.usuarioRepository = usuarioRepository;
         }
 
         protected override void BeforeInsert(PedidoEmprestimo abstractModel)
         {
             abstractModel.CRIADO = DateTime.Now;
+
+            abstractModel.USUARIO = usuarioRepository.Find(Contexto.USUARIOLOGIN);
         }
 
-        internal List<PedidoEmprestimo> GetAll()
+        private IQueryable<PedidoEmprestimo> GetQueryable()
         {
-            var retorno = Entity
+            return Entity
                 .Include(p => p.USUARIO)
                 .Include(p => p.Ofertas)
                     .ThenInclude(u => u.USUARIO)
@@ -27,6 +34,29 @@ namespace API_Emprestimos.Repository
                     .ThenInclude(p => p.PEDIDO)
 
                 .OrderByDescending(x => x.CRIADO);
+        }
+
+        internal List<PedidoEmprestimo> GetAll()
+        {
+            IQueryable<PedidoEmprestimo> retorno = GetQueryable();
+
+            return retorno.ToList();
+        }
+
+        internal List<PedidoEmprestimo> GetUsuario()
+        {
+            IQueryable<PedidoEmprestimo> retorno = GetQueryable();
+
+            retorno = retorno.Where(x => x.USUARIO.EMAIL == Contexto.USUARIOLOGIN).OrderByDescending(x => x.CRIADO);
+
+            return retorno.ToList();
+        }
+
+        internal List<PedidoEmprestimo> Get()
+        {
+            IQueryable<PedidoEmprestimo> retorno = GetQueryable();
+
+            retorno = retorno.Where(x => x.USUARIO.EMAIL != Contexto.USUARIOLOGIN && x.ACEITO == null).OrderByDescending(x => x.USUARIO.NOME);
 
             return retorno.ToList();
         }

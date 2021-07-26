@@ -11,6 +11,7 @@ Remove-Migration -Context BaseDbContext
  */
 
 using API_Emprestimos.Repository;
+using API_Emprestimos.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -25,7 +26,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Text;
-using System.Threading;
 
 namespace API_Emprestimos
 {
@@ -142,10 +142,18 @@ namespace API_Emprestimos
                 options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
             });
 
+            //Repositorios
             services.AddTransient<UsuarioRepository>();
             services.AddTransient<PedidoEmprestimoRepository>();
             services.AddTransient<OfertaEmprestimoRepository>();
             services.AddTransient<AceiteEmprestimoRepository>();
+
+            //Services
+            services.AddTransient<CancelarPedidoService>();
+
+
+            //Contexto de execucao
+            services.AddScoped(typeof(ContextoExecucao), (services) => new ContextoExecucao());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

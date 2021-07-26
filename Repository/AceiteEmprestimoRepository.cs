@@ -9,17 +9,22 @@ namespace API_Emprestimos.Repository
     public class AceiteEmprestimoRepository : AbstractRepository<AceiteEmprestimo>
     {
         private readonly OfertaEmprestimoRepository ofertaEmprestimoRepository;
+        private readonly PedidoEmprestimoRepository pedidoEmprestimoRepository;
 
-        public AceiteEmprestimoRepository(BaseDbContext context, OfertaEmprestimoRepository ofertaEmprestimoRepository) : base(context)
+        public AceiteEmprestimoRepository(BaseDbContext context,
+            OfertaEmprestimoRepository ofertaEmprestimoRepository,
+            PedidoEmprestimoRepository pedidoEmprestimoRepository,
+            ContextoExecucao contexto) : base(context, contexto)
         {
             this.ofertaEmprestimoRepository = ofertaEmprestimoRepository;
+            this.pedidoEmprestimoRepository = pedidoEmprestimoRepository;
         }
 
         protected override void BeforeInsert(AceiteEmprestimo abstractModel)
         {
             abstractModel.ACEITO = DateTime.Now;
 
-            System.Collections.Generic.List<OfertaEmprestimo> ofertas = abstractModel.PEDIDO.Ofertas;
+            List<OfertaEmprestimo> ofertas = abstractModel.PEDIDO.Ofertas;
 
             foreach (OfertaEmprestimo item in ofertas)
             {
@@ -29,11 +34,14 @@ namespace API_Emprestimos.Repository
                 item.CANCELADO = 1;
                 ofertaEmprestimoRepository.Update(item);
             }
+
+            abstractModel.PEDIDO.ACEITO = DateTime.Now;
+            pedidoEmprestimoRepository.Update(abstractModel.PEDIDO);
         }
 
-        internal List<AceiteEmprestimo> GetAll()
+        private IQueryable<AceiteEmprestimo> GetQueryable()
         {
-            var retorno = Entity
+            return Entity
                 .Include(p => p.CREDOR)
                 .Include(p => p.REQUERENTE)
 
@@ -50,10 +58,24 @@ namespace API_Emprestimos.Repository
                 .Include(p => p.PEDIDO)
                     .ThenInclude(p => p.Ofertas)
                     .ThenInclude(p => p.PEDIDO)
-                    
+
                 .OrderByDescending(x => x.ACEITO);
+        }
+
+        internal List<AceiteEmprestimo> GetAll()
+        {
+            IQueryable<AceiteEmprestimo> retorno = GetQueryable();
 
             return retorno.ToList();
+        }
+
+        internal AceiteEmprestimo GetPedido(int pedidoid)
+        {
+            IQueryable<AceiteEmprestimo> retorno = GetQueryable();
+
+            retorno = retorno.Where(x => x.PEDIDO.PEDIDOID == pedidoid);
+
+            return retorno.FirstOrDefault();
         }
     }
 }

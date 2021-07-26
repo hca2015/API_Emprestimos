@@ -7,8 +7,8 @@ namespace API_Emprestimos.Controllers
 {
     public class UsuarioController : EntityController<Usuario, UsuarioRepository>
     {
-        public UsuarioController(IConfiguration configuration, IServiceProvider serviceProvider, UsuarioRepository repository)
-            : base(configuration, serviceProvider, repository)
+        public UsuarioController(IConfiguration configuration, IServiceProvider serviceProvider, UsuarioRepository repository, ContextoExecucao contexto)
+            : base(configuration, serviceProvider, repository, contexto)
         {
         }
     }

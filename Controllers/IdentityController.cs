@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -21,21 +22,23 @@ namespace API_Emprestimos.Controllers
         private readonly UsuarioRepository usuarioRepository;
 
         public IdentityController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration, IServiceProvider serviceProvider, UsuarioRepository usuarioRepository)
-            : base(configuration, serviceProvider)
+            : base(configuration, serviceProvider, null)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             this.usuarioRepository = usuarioRepository;
         }
-                
+
         [HttpPost("Criar")]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] Usuario model)
         {
-            IdentityUser user = new IdentityUser { UserName = model.EMAIL, Email = model.EMAIL };
-            
-            using (TransactionScope scope = new(TransactionScopeOption.RequiresNew))
+            Debug.WriteLine("\n\n\n\n\nIncluindo usuario");
+
+            using (TransactionScope scope = new(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
+                IdentityUser user = new() { UserName = model.EMAIL, Email = model.EMAIL };
                 IdentityResult result = await _userManager.CreateAsync(user, model.PASSWORD);
+
                 if (result.Succeeded)
                 {
                     if (usuarioRepository.Find(model.EMAIL) == null && !usuarioRepository.Insert(model))
@@ -52,7 +55,7 @@ namespace API_Emprestimos.Controllers
                     scope.Dispose();
                     return BadRequest(string.Join("<br>", result.Errors.Select(e => e.Description)));
                 }
-            }            
+            }
         }
 
         [HttpPost("Login")]
@@ -81,13 +84,13 @@ namespace API_Emprestimos.Controllers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
-            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:key"]));
-            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(configuration["JWT:key"]));
+            SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
 
             // tempo de expiração do token: 1 hora
             DateTime expiration = DateTime.UtcNow.AddHours(1);
 
-            JwtSecurityToken token = new JwtSecurityToken(
+            JwtSecurityToken token = new(
                issuer: null,
                audience: null,
                claims: claims,

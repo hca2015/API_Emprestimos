@@ -21,12 +21,12 @@ namespace API_Emprestimos.Repository
 
             modelBuilder.Entity<PedidoEmprestimo>().HasKey(t => t.PEDIDOID);
             modelBuilder.Entity<PedidoEmprestimo>().HasOne(t => t.USUARIO);
-            modelBuilder.Entity<PedidoEmprestimo>().HasMany(t => t.Ofertas).WithOne(t => t.PEDIDO);
+            modelBuilder.Entity<PedidoEmprestimo>().HasMany(t => t.Ofertas).WithOne(t => t.PEDIDO).OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<OfertaEmprestimo>().HasKey(t => t.OFERTAID);
             modelBuilder.Entity<OfertaEmprestimo>().HasOne(t => t.USUARIO);
-            modelBuilder.Entity<OfertaEmprestimo>().Property(t => t.CANCELADO).HasDefaultValue(0);            
+            modelBuilder.Entity<OfertaEmprestimo>().Property(t => t.CANCELADO).HasDefaultValue(0);
 
 
             modelBuilder.Entity<AceiteEmprestimo>().HasKey(t => t.ACEITEID);

@@ -8,7 +8,7 @@ namespace API_Emprestimos.Repository
 {
     public class OfertaEmprestimoRepository : AbstractRepository<OfertaEmprestimo>
     {
-        public OfertaEmprestimoRepository(BaseDbContext context) : base(context)
+        public OfertaEmprestimoRepository(BaseDbContext context, ContextoExecucao contexto) : base(context, contexto)
         {
         }
 
@@ -26,6 +26,11 @@ namespace API_Emprestimos.Repository
                 .OrderByDescending(x => x.CRIADO);
 
             return retorno.ToList();
+        }
+
+        internal List<OfertaEmprestimo> GetPedido(int pedidoid)
+        {
+            throw new NotImplementedException();
         }
     }
 

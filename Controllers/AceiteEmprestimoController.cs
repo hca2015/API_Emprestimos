@@ -7,8 +7,8 @@ namespace API_Emprestimos.Controllers
 {
     public class AceiteEmprestimoController : EntityController<AceiteEmprestimo, AceiteEmprestimoRepository>
     {
-        public AceiteEmprestimoController(IConfiguration configuration, IServiceProvider serviceProvider, AceiteEmprestimoRepository repository)
-            : base(configuration, serviceProvider, repository)
+        public AceiteEmprestimoController(IConfiguration configuration, IServiceProvider serviceProvider, AceiteEmprestimoRepository repository, ContextoExecucao contexto)
+            : base(configuration, serviceProvider, repository, contexto)
         {
         }
     }

@@ -5,9 +5,10 @@ using System.Linq;
 
 namespace API_Emprestimos.Repository
 {
-    public abstract class AbstractRepository<T> where T : AbstractModel
+    public abstract class AbstractRepository<T> : ClasseBase
+        where T : AbstractModel
     {
-        public AbstractRepository(BaseDbContext context)
+        public AbstractRepository(BaseDbContext context, ContextoExecucao contexto) : base(contexto)
         {
             Context = context;
             Entity = context.Set<T>();
@@ -78,13 +79,16 @@ namespace API_Emprestimos.Repository
 
         }
 
-        public bool Delete(T abstractModel)
+        public bool Delete(int id)
         {
-            BeforeDelete(abstractModel);
+            var model = Entity.Find(id);
 
-            var contextModel = Find(abstractModel);
+            if (model != null)
+            {
+                BeforeDelete(model);
 
-            Remove(contextModel);
+                Remove(model);
+            }
 
             return Flush();
         }
@@ -99,7 +103,7 @@ namespace API_Emprestimos.Repository
             var all = Entity.ToList();
             foreach (var item in all)
             {
-                Delete(item);
+                Delete(item.getId());
             }
         }
     }
