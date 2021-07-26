@@ -8,9 +8,7 @@ namespace API_Emprestimos.Models
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OFERTAID { get; set; }
-        [Required]
         public virtual Usuario USUARIO { get; set; }
-        [Required]
         public virtual PedidoEmprestimo PEDIDO { get; set; }
         [Required]
         public double TAXA { get; set; } //0.25..etc
@@ -19,7 +17,7 @@ namespace API_Emprestimos.Models
         [Required]
         public int TIPOTEMPO { get; set; } //KDTipoTempo
         public DateTime CRIADO { get; set; }
-        [Required]
         public int CANCELADO { get; set; }
+        public int PEDIDOID { get; set; }
     }
 }

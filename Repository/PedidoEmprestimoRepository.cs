@@ -36,6 +36,11 @@ namespace API_Emprestimos.Repository
                 .OrderByDescending(x => x.CRIADO);
         }
 
+        internal PedidoEmprestimo Find(int pedidoid)
+        {
+            return GetQueryable().Where(x => x.PEDIDOID == pedidoid).FirstOrDefault();
+        }
+
         internal List<PedidoEmprestimo> GetAll()
         {
             IQueryable<PedidoEmprestimo> retorno = GetQueryable();
