@@ -28,7 +28,7 @@ namespace API_Emprestimos.Controllers
             this.aceiteEmprestimoRepository = aceiteEmprestimoRepository;
         }
 
-        private readonly List<Usuario> usuarios = new()
+        private List<Usuario> usuarios = new()
         {
             new Usuario()
             {
@@ -148,6 +148,8 @@ namespace API_Emprestimos.Controllers
             }
 
             Task.WaitAll(tasks.ToArray());
+
+            usuarios = usuarioRepository.GetAll();
 
             for (int i = 0; i < 3; i++)
             {

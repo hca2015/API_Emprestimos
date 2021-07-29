@@ -19,5 +19,6 @@ namespace API_Emprestimos.Models
         public DateTime CRIADO { get; set; }
         public int CANCELADO { get; set; }
         public int PEDIDOID { get; set; }
+        public DateTime? ACEITO { get; set; }
     }
 }

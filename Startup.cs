@@ -150,7 +150,8 @@ namespace API_Emprestimos
 
             //Services
             services.AddTransient<CancelarPedidoService>();
-
+            services.AddTransient<CancelarOfertaService>();
+            services.AddTransient<AceitarOfertaService>();
 
             //Contexto de execucao
             services.AddScoped(typeof(ContextoExecucao), (services) => new ContextoExecucao());

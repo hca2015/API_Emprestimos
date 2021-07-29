@@ -1,4 +1,5 @@
 ﻿using API_Emprestimos.Models;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace API_Emprestimos.Repository
@@ -17,6 +18,10 @@ namespace API_Emprestimos.Repository
             return Entity.FirstOrDefault(x => x.EMAIL.ToLower().Trim() == email.ToLower().Trim());
         }
 
+        internal List<Usuario> GetAll()
+        {
+            return Entity.ToList();
+        }
     }
 
 }

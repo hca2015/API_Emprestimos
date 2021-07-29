@@ -21,7 +21,8 @@ namespace API_Emprestimos.Repository
         {
             abstractModel.CRIADO = DateTime.Now;
 
-            abstractModel.USUARIO = usuarioRepository.Find(Contexto.USUARIOLOGIN);
+            if (abstractModel.USUARIO == null)
+                abstractModel.USUARIO = usuarioRepository.Find(Contexto.USUARIOLOGIN);
         }
 
         private IQueryable<PedidoEmprestimo> GetQueryable()
@@ -52,7 +53,7 @@ namespace API_Emprestimos.Repository
         {
             IQueryable<PedidoEmprestimo> retorno = GetQueryable();
 
-            retorno = retorno.Where(x => x.USUARIO.EMAIL == Contexto.USUARIOLOGIN).OrderByDescending(x => x.CRIADO);
+            retorno = retorno.Where(x => x.USUARIO.EMAIL == Contexto.USUARIOLOGIN && x.ACEITO == null).OrderByDescending(x => x.CRIADO);
 
             return retorno.ToList();
         }

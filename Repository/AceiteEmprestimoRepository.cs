@@ -37,6 +37,9 @@ namespace API_Emprestimos.Repository
 
             abstractModel.PEDIDO.ACEITO = DateTime.Now;
             pedidoEmprestimoRepository.Update(abstractModel.PEDIDO);
+
+            abstractModel.OFERTA.ACEITO = DateTime.Now;
+            ofertaEmprestimoRepository.Update(abstractModel.OFERTA);
         }
 
         private IQueryable<AceiteEmprestimo> GetQueryable()
@@ -76,6 +79,22 @@ namespace API_Emprestimos.Repository
             retorno = retorno.Where(x => x.PEDIDO.PEDIDOID == pedidoid);
 
             return retorno.FirstOrDefault();
+        }
+
+        internal AceiteEmprestimo GetOferta(int ofertaid)
+        {
+            IQueryable<AceiteEmprestimo> retorno = GetQueryable();
+
+            retorno = retorno.Where(x => x.OFERTA.OFERTAID == ofertaid);
+
+            return retorno.FirstOrDefault();
+        }
+
+        internal List<AceiteEmprestimo> GetUsuario()
+        {
+            List<AceiteEmprestimo> retorno = GetQueryable().Where(x => x.REQUERENTE.EMAIL == Contexto.USUARIOLOGIN).ToList();
+
+            return retorno;
         }
     }
 }

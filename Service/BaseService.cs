@@ -24,6 +24,7 @@ namespace API_Emprestimos.Service
             return true;
         }
 
+        [DebuggerStepThrough]
         private bool Action()
         {
             try
