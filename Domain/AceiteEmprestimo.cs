@@ -28,5 +28,22 @@ namespace API_Emprestimos.Models
         public Usuario REQUERENTE { get; set; }
         [Required]
         public Usuario CREDOR { get; set; }
+
+        [NotMapped]
+        public string TIPOTEMPOFINALSTR { get
+            {
+                switch (TIPOTEMPOFINAL)
+                {
+                    case (double)KDTipoTempo.Dias:
+                        return "dias";
+                    case (double)KDTipoTempo.Meses:
+                        return "meses";
+                    case (double)KDTipoTempo.Anos:
+                        return "anos";
+                    default:
+                        return "";
+                }
+            }
+        }
     }
 }

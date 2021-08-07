@@ -1,5 +1,6 @@
 ﻿using API_Emprestimos.Models;
 using API_Emprestimos.Repository;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -8,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace API_Emprestimos.Controllers
@@ -19,13 +21,15 @@ namespace API_Emprestimos.Controllers
             UsuarioRepository usuarioRepository,
             PedidoEmprestimoRepository pedidoEmprestimoRepository,
             OfertaEmprestimoRepository ofertaEmprestimoRepository,
-            AceiteEmprestimoRepository aceiteEmprestimoRepository)
+            AceiteEmprestimoRepository aceiteEmprestimoRepository,
+            UserManager<IdentityUser> userManager)
             : base(configuration, serviceProvider, null)
         {
             this.usuarioRepository = usuarioRepository;
             this.pedidoEmprestimoRepository = pedidoEmprestimoRepository;
             this.ofertaEmprestimoRepository = ofertaEmprestimoRepository;
             this.aceiteEmprestimoRepository = aceiteEmprestimoRepository;
+            this.userManager = userManager;
         }
 
         private List<Usuario> usuarios = new()
@@ -100,17 +104,21 @@ namespace API_Emprestimos.Controllers
         private readonly PedidoEmprestimoRepository pedidoEmprestimoRepository;
         private readonly OfertaEmprestimoRepository ofertaEmprestimoRepository;
         private readonly AceiteEmprestimoRepository aceiteEmprestimoRepository;
+        private readonly UserManager<IdentityUser> userManager;
 
         [HttpPost]
         public void Testar()
         {
-            Debugger.Break();
-            bool soInserir = false;
+            //Debugger.Break();
 
             IdentityContext context = serviceProvider.GetService(typeof(IdentityContext)) as IdentityContext;
-            List<Microsoft.AspNetCore.Identity.IdentityUser> users = context.Users.ToList();
-            if (users.Count > 0)
-                soInserir = true;
+            List<IdentityUser> users = context.Users.ToList();
+
+            foreach (var us in users)
+            {
+                context.Users.Remove(us);
+                context.SaveChanges();
+            }
 
             aceiteEmprestimoRepository.WipeData();
             ofertaEmprestimoRepository.WipeData();
@@ -121,33 +129,21 @@ namespace API_Emprestimos.Controllers
 
             foreach (Usuario item in usuarios)
             {
-                if (soInserir)
+                IdentityUser user = new() { UserName = item.EMAIL, Email = item.EMAIL };
+                IdentityResult result = userManager.CreateAsync(user, item.PASSWORD).Result;
+
+                if (result.Succeeded)
                 {
-                    if (!usuarioRepository.Insert(item))
+                    if (usuarioRepository.Find(item.EMAIL) == null && !usuarioRepository.Insert(item))
+                    {
                         Debugger.Break();
+                    }
                 }
                 else
                 {
-                    Task t = new(
-                        async () =>
-                        {
-                            try
-                            {
-                                HttpClient http = new();
-                                HttpContent content = JsonContent.Create(item);
-                                await http.PostAsync("https://localhost:5001/api/Identity/Criar", content);
-                            }
-                            catch (Exception e)
-                            {
-                                Debugger.Break();
-                            }
-                        });
-                    t.Start();
-                    tasks.Add(t);
+                    Debugger.Break();
                 }
             }
-
-            Task.WaitAll(tasks.ToArray());
 
             usuarios = usuarioRepository.GetAll();
 
@@ -217,7 +213,7 @@ namespace API_Emprestimos.Controllers
                     Debugger.Break();
             }
 
-            Debugger.Break();
+            //Debugger.Break();
         }
     }
 }
